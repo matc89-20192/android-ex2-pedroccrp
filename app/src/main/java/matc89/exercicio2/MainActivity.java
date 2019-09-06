@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -15,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView = null;
     private Button btnTrocar = null;
 
-    private String displayString = "";
+    private String username = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     public void changeToOutraActivity(View v) {
         Intent intent = new Intent(this, OutraActivity.class);
 
+        intent.putExtra("USERNAME", username);
+
         startActivityForResult(intent, USERNAME_INTENT_CODE);
     }
 
@@ -36,12 +37,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        String displayString = "";
+
         if (data == null) {
             return;
         }
 
         if (requestCode == USERNAME_INTENT_CODE) {
-            String username = data.getStringExtra("USERNAME");
+            username = data.getStringExtra("USERNAME");
+
+            if (username == null) {
+                return;
+            }
 
             if (username.isEmpty()) {
                 displayString = "Oi!";
@@ -52,5 +59,23 @@ public class MainActivity extends AppCompatActivity {
 
             textView.setText(displayString);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("username", username);
+        outState.putString("textView", textView.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        String text = savedInstanceState.getString("textView");
+        textView.setText(text);
+
+        username = savedInstanceState.getString("username");
     }
 }
